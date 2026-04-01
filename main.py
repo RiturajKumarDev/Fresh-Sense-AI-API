@@ -44,7 +44,6 @@ def predict():
             [
                 float(d["ethanol"]),
                 float(d["co2"]),
-                float(d["voc"]),
                 float(d["temp"]),
                 float(d["humidity"]),
                 float(d["days_passed"]),
