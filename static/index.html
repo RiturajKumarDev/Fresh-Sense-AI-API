@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fruit Freshness Predictor</title>
+    <title>FreshSense AI - Fruit & Vegetable Freshness Predictor</title>
     <style>
         * {
             margin: 0;
@@ -20,43 +20,68 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
+        /* Header */
         .header {
             text-align: center;
             color: white;
             margin-bottom: 30px;
+            animation: fadeInDown 0.8s ease;
         }
 
         .header h1 {
-            font-size: 2.5rem;
+            font-size: 3rem;
             margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
         }
 
         .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
+            font-size: 1.2rem;
+            opacity: 0.95;
         }
 
-        .main-card {
+        /* Main Grid */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        /* Cards */
+        .card {
             background: white;
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             overflow: hidden;
-            margin-bottom: 30px;
+            animation: fadeInUp 0.8s ease;
+            transition: transform 0.3s ease;
         }
 
-        .form-section {
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .card-body {
             padding: 30px;
         }
 
+        /* Form Styles */
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
             gap: 20px;
-            margin-bottom: 30px;
         }
 
         .input-group {
@@ -71,9 +96,14 @@
             font-size: 0.9rem;
         }
 
+        .input-group label i {
+            margin-right: 5px;
+            color: #667eea;
+        }
+
         .input-group input,
         .input-group select {
-            padding: 10px 15px;
+            padding: 12px 15px;
             border: 2px solid #e0e0e0;
             border-radius: 10px;
             font-size: 1rem;
@@ -87,16 +117,6 @@
             box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        .input-group input[type="number"] {
-            -moz-appearance: textfield;
-        }
-
-        .input-group input[type="number"]::-webkit-inner-spin-button,
-        .input-group input[type="number"]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
         .predict-btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
@@ -107,33 +127,39 @@
             border-radius: 10px;
             cursor: pointer;
             width: 100%;
-            transition: transform 0.2s ease;
+            margin-top: 20px;
+            transition: all 0.3s ease;
         }
 
         .predict-btn:hover {
             transform: translateY(-2px);
-        }
-
-        .predict-btn:active {
-            transform: translateY(0);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
 
         .predict-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
+            transform: none;
         }
 
+        /* Result Section */
         .result-section {
             background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 20px;
             padding: 30px;
-            border-top: 1px solid #e0e0e0;
+            animation: fadeInUp 0.8s ease;
         }
 
         .result-card {
             background: white;
             border-radius: 15px;
             padding: 25px;
-            text-align: center;
+        }
+
+        .result-card h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
         }
 
         .freshness-indicator {
@@ -143,7 +169,7 @@
         .freshness-bar {
             background: #e0e0e0;
             border-radius: 10px;
-            height: 30px;
+            height: 40px;
             overflow: hidden;
             margin: 10px 0;
         }
@@ -152,20 +178,22 @@
             background: linear-gradient(90deg, #4caf50, #8bc34a);
             height: 100%;
             border-radius: 10px;
-            transition: width 0.5s ease;
+            transition: width 0.8s ease;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
             font-weight: bold;
+            font-size: 1.1rem;
         }
 
         .status-badge {
             display: inline-block;
-            padding: 8px 20px;
-            border-radius: 20px;
+            padding: 10px 25px;
+            border-radius: 25px;
             font-weight: 600;
-            margin: 10px 0;
+            margin: 15px 0;
+            font-size: 1.1rem;
         }
 
         .status-fresh {
@@ -186,26 +214,40 @@
         .result-details {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            gap: 15px;
             margin-top: 20px;
         }
 
         .detail-item {
-            background: #f5f5f5;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e8eaf6 100%);
             padding: 15px;
             border-radius: 10px;
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .detail-item:hover {
+            transform: scale(1.05);
         }
 
         .detail-label {
             font-size: 0.85rem;
             color: #666;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
         }
 
         .detail-value {
             font-size: 1.5rem;
             font-weight: bold;
             color: #333;
+        }
+
+        .recommendation-box {
+            background: #e8eaf6;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #667eea;
         }
 
         .error-message {
@@ -227,22 +269,18 @@
             animation: spin 1s ease-in-out infinite;
         }
 
-        @keyframes spin {
-            to {
-                transform: rotate(360deg);
-            }
-        }
-
+        /* Info Section */
         .info-section {
             background: white;
             border-radius: 15px;
-            padding: 20px;
-            margin-top: 20px;
+            padding: 25px;
+            margin-top: 30px;
+            animation: fadeInUp 0.8s ease;
         }
 
         .info-section h3 {
             color: #667eea;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
         }
 
         .info-grid {
@@ -252,26 +290,70 @@
         }
 
         .info-item {
-            padding: 10px;
+            padding: 15px;
             background: #f8f9fa;
-            border-radius: 8px;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .info-item:hover {
+            transform: translateY(-3px);
         }
 
         .info-item strong {
             color: #764ba2;
+            display: block;
+            margin-bottom: 5px;
         }
 
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive */
         @media (max-width: 768px) {
-            .form-grid {
+            .main-grid {
                 grid-template-columns: 1fr;
+                gap: 20px;
             }
 
             .header h1 {
-                font-size: 1.8rem;
+                font-size: 2rem;
             }
 
-            .form-section {
+            .card-body {
                 padding: 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -279,149 +361,200 @@
 
 <body>
     <div class="container">
+        <!-- Header -->
         <div class="header">
-            <h1>🥗 Fruit Freshness Predictor</h1>
-            <p>Enter Fruit parameters to predict freshness and remaining shelf life</p>
+            <h1>🥗 FreshSense AI</h1>
+            <p>Intelligent Fruit & Vegetable Freshness Prediction System</p>
         </div>
 
-        <div class="main-card">
-            <div class="form-section">
-                <form id="predictionForm">
-                    <div class="form-grid">
-                        <div class="input-group">
-                            <label for="Fruit_type">Fruit Type *</label>
-                            <select id="Fruit_type" required>
-                                <option value="">Select Fruit</option>
-                                <option value="apple">Apple</option>
-                                <option value="banana">Banana</option>
-                                <option value="mango">Mango</option>
-                                <option value="orange">Orange</option>
-                                <option value="grapes">Grapes</option>
-                                <option value="pineapple">Pineapple</option>
-                                <option value="papaya">Papaya</option>
-                                <option value="watermelon">Watermelon</option>
-                                <option value="pomegranate">Pomegranate</option>
-                                <option value="guava">Guava</option>
-                                <option value="kiwi">Kiwi</option>
-                                <option value="strawberry">Strawberry</option>
-                                <option value="pear">Pear</option>
-                                <option value="peach">Peach</option>
-                                <option value="cherry">Cherry</option>
-                            </select>
+        <!-- Main Grid -->
+        <div class="main-grid">
+            <!-- Input Form -->
+            <div class="card">
+                <div class="card-header">
+                    📊 Enter Produce Details
+                </div>
+                <div class="card-body">
+                    <form id="predictionForm">
+                        <div class="form-grid">
+                            <div class="input-group">
+                                <label><i>🥬</i> Vegetable/Fruit Type *</label>
+                                <select id="vegetable_type" required>
+                                    <option value="">Select type</option>
+                                    <option value="tomato">🍅 Tomato</option>
+                                    <option value="potato">🥔 Potato</option>
+                                    <option value="onion">🧅 Onion</option>
+                                    <option value="carrot">🥕 Carrot</option>
+                                    <option value="cucumber">🥒 Cucumber</option>
+                                    <option value="lettuce">🥬 Lettuce</option>
+                                    <option value="spinach">🌿 Spinach</option>
+                                    <option value="broccoli">🥦 Broccoli</option>
+                                    <option value="cauliflower">🌼 Cauliflower</option>
+                                    <option value="bell_pepper">🫑 Bell Pepper</option>
+                                    <option value="apple">🍎 Apple</option>
+                                    <option value="banana">🍌 Banana</option>
+                                    <option value="orange">🍊 Orange</option>
+                                </select>
+                            </div>
+
+                            <div class="input-group">
+                                <label><i>🧪</i> Ethanol Level (ppm)</label>
+                                <input type="number" id="ethanol" step="0.01" required placeholder="0.1 - 10.0">
+                            </div>
+
+                            <div class="input-group">
+                                <label><i>💨</i> CO2 Level (ppm)</label>
+                                <input type="number" id="co2" step="0.01" required placeholder="300 - 5000">
+                            </div>
+
+                            <div class="input-group">
+                                <label><i>🌡️</i> Temperature (°C)</label>
+                                <input type="number" id="temp" step="0.1" required placeholder="0 - 40">
+                            </div>
+
+                            <div class="input-group">
+                                <label><i>💧</i> Humidity (%)</label>
+                                <input type="number" id="humidity" step="0.1" required placeholder="0 - 100">
+                            </div>
+
+                            <div class="input-group">
+                                <label><i>📅</i> Days Passed Since Harvest</label>
+                                <input type="number" id="days_passed" step="0.1" required placeholder="0 - 30">
+                            </div>
+
+                            <div class="input-group">
+                                <label><i>⚖️</i> Weight (grams)</label>
+                                <input type="number" id="weight" step="0.01" required placeholder="50 - 5000">
+                            </div>
+
+                            <div class="input-group">
+                                <label><i>🎨</i> Color Score (1-10)</label>
+                                <input type="number" id="color_score" step="0.1" min="1" max="10" required
+                                    placeholder="1=Poor, 10=Excellent">
+                            </div>
                         </div>
 
-                        <div class="input-group">
-                            <label for="ethanol">Ethanol Level (ppm) *</label>
-                            <input type="number" id="ethanol" step="0.01" required placeholder="e.g., 0.5">
-                        </div>
-
-                        <div class="input-group">
-                            <label for="co2">CO2 Level (ppm) *</label>
-                            <input type="number" id="co2" step="0.01" required placeholder="e.g., 400">
-                        </div>
-
-                        <div class="input-group">
-                            <label for="temp">Temperature (°C) *</label>
-                            <input type="number" id="temp" step="0.1" required placeholder="e.g., 22">
-                        </div>
-
-                        <div class="input-group">
-                            <label for="humidity">Humidity (%) *</label>
-                            <input type="number" id="humidity" step="0.1" required placeholder="e.g., 65">
-                        </div>
-
-                        <div class="input-group">
-                            <label for="days_passed">Days Passed Since Harvest *</label>
-                            <input type="number" id="days_passed" step="0.1" required placeholder="e.g., 2">
-                        </div>
-
-                        <div class="input-group">
-                            <label for="weight">Weight (grams) *</label>
-                            <input type="number" id="weight" step="0.01" required placeholder="e.g., 150">
-                        </div>
-
-                        <div class="input-group">
-                            <label for="color_score">Color Score (1-10) *</label>
-                            <input type="number" id="color_score" step="0.1" min="1" max="10" required
-                                placeholder="e.g., 8">
-                        </div>
-                    </div>
-
-                    <button type="submit" class="predict-btn" id="predictBtn">🔮 Predict Freshness</button>
-                </form>
+                        <button type="submit" class="predict-btn" id="predictBtn">
+                            🔮 Predict Freshness
+                        </button>
+                    </form>
+                </div>
             </div>
 
-            <div class="result-section" id="resultSection" style="display: none;">
-                <div class="result-card">
-                    <h2>Prediction Results</h2>
-
-                    <div class="freshness-indicator">
-                        <div class="freshness-bar">
-                            <div class="freshness-fill" id="freshnessFill">0%</div>
+            <!-- Quick Info -->
+            <div class="card">
+                <div class="card-header">
+                    ℹ️ Quick Guide
+                </div>
+                <div class="card-body">
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <strong>🍅 Tomato</strong>
+                            Ideal: 20-25°C, 85-95% humidity
+                        </div>
+                        <div class="info-item">
+                            <strong>🥔 Potato</strong>
+                            Ideal: 4-8°C, 85-90% humidity
+                        </div>
+                        <div class="info-item">
+                            <strong>🥕 Carrot</strong>
+                            Ideal: 0-4°C, 90-95% humidity
+                        </div>
+                        <div class="info-item">
+                            <strong>🥬 Lettuce</strong>
+                            Ideal: 0-4°C, 95-100% humidity
+                        </div>
+                        <div class="info-item">
+                            <strong>🍎 Apple</strong>
+                            Ideal: -1 to 1°C, 90-95% humidity
+                        </div>
+                        <div class="info-item">
+                            <strong>🍌 Banana</strong>
+                            Ideal: 13-15°C, 85-95% humidity
                         </div>
                     </div>
-
-                    <div id="statusBadge"></div>
-
-                    <div class="result-details">
-                        <div class="detail-item">
-                            <div class="detail-label">Remaining Days</div>
-                            <div class="detail-value" id="remainingDays">-</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Freshness Level</div>
-                            <div class="detail-value" id="freshnessValue">-</div>
-                        </div>
-                        <div class="detail-item">
-                            <div class="detail-label">Status</div>
-                            <div class="detail-value" id="statusValue">-</div>
-                        </div>
-                    </div>
-
-                    <div id="errorMessage" class="error-message" style="display: none;"></div>
                 </div>
             </div>
         </div>
 
+        <!-- Results Section -->
+        <div class="result-section" id="resultSection" style="display: none;">
+            <div class="result-card">
+                <h3>📊 Prediction Results</h3>
+
+                <div class="freshness-indicator">
+                    <div class="freshness-bar">
+                        <div class="freshness-fill" id="freshnessFill">0%</div>
+                    </div>
+                </div>
+
+                <div style="text-align: center;" id="statusBadge"></div>
+
+                <div class="result-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Remaining Days</div>
+                        <div class="detail-value" id="remainingDays">-</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Freshness Level</div>
+                        <div class="detail-value" id="freshnessValue">-</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Quality Grade</div>
+                        <div class="detail-value" id="qualityValue">-</div>
+                    </div>
+                </div>
+
+                <div class="recommendation-box" id="recommendationBox">
+                    <strong>💡 Recommendation:</strong>
+                    <span id="recommendationText">-</span>
+                </div>
+
+                <div id="errorMessage" class="error-message" style="display: none;"></div>
+            </div>
+        </div>
+
+        <!-- Footer Info -->
         <div class="info-section">
-            <h3>📊 Understanding the Parameters</h3>
+            <h3>📚 Understanding the Parameters</h3>
             <div class="info-grid">
                 <div class="info-item">
-                    <strong>Ethanol</strong><br>
-                    Higher levels indicate spoilage
+                    <strong>🧪 Ethanol</strong>
+                    Higher levels indicate fermentation and spoilage
                 </div>
                 <div class="info-item">
-                    <strong>CO2</strong><br>
+                    <strong>💨 CO2</strong>
+                    Increases as produce respires and ages
                 </div>
                 <div class="info-item">
-                    <strong>Temperature</strong><br>
-                    Optimal: 4-8°C for most Fruits
+                    <strong>🌡️ Temperature</strong>
+                    Lower temperatures slow down ripening
                 </div>
                 <div class="info-item">
-                    <strong>Humidity</strong><br>
-                    Optimal: 85-95%
+                    <strong>💧 Humidity</strong>
+                    Proper humidity prevents wilting and decay
                 </div>
                 <div class="info-item">
-                    <strong>Color Score</strong><br>
-                    10 = Perfect, 1 = Poor
+                    <strong>🎨 Color Score</strong>
+                    10 = Fresh and vibrant, 1 = Discolored
                 </div>
                 <div class="info-item">
-                    <strong>Freshness Scale</strong><br>
-                    0-100% (100% = Freshly harvested)
+                    <strong>📊 Freshness Scale</strong>
+                    70-100%: Excellent, 40-69%: Good, 0-39%: Use immediately
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        const API_URL = window.location.origin; // Use current domain for API calls
+        const API_URL = window.location.origin;
 
         document.getElementById('predictionForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const predictBtn = document.getElementById('predictBtn');
             const originalText = predictBtn.innerHTML;
-            predictBtn.innerHTML = '<div class="loading"></div> Predicting...';
+            predictBtn.innerHTML = '<div class="loading"></div> Analyzing...';
             predictBtn.disabled = true;
 
             // Hide previous results
@@ -430,7 +563,7 @@
 
             // Collect form data
             const formData = {
-                Fruit_type: document.getElementById('Fruit_type').value,
+                vegetable_type: document.getElementById('vegetable_type').value,
                 ethanol: parseFloat(document.getElementById('ethanol').value),
                 co2: parseFloat(document.getElementById('co2').value),
                 temp: parseFloat(document.getElementById('temp').value),
@@ -441,8 +574,16 @@
             };
 
             // Validate
-            if (!formData.Fruit_type) {
-                showError('Please select a Fruit type');
+            if (!formData.vegetable_type) {
+                showError('Please select a vegetable or fruit type');
+                predictBtn.innerHTML = originalText;
+                predictBtn.disabled = false;
+                return;
+            }
+
+            // Validate ranges
+            if (formData.color_score < 1 || formData.color_score > 10) {
+                showError('Color score must be between 1 and 10');
                 predictBtn.innerHTML = originalText;
                 predictBtn.disabled = false;
                 return;
@@ -476,9 +617,11 @@
         });
 
         function displayResults(data) {
-            const freshness = data.freshness;
+            const freshness = data.freshness_percentage;
             const remainingDays = data.remaining_days;
             const status = data.status;
+            const quality = data.quality;
+            const recommendation = data.recommendation;
 
             // Update freshness bar
             const freshnessFill = document.getElementById('freshnessFill');
@@ -499,15 +642,15 @@
             let statusClass = '';
             let statusText = '';
 
-            if (status.toLowerCase().includes('fresh')) {
+            if (freshness >= 70) {
                 statusClass = 'status-fresh';
-                statusText = '✓ Fresh';
-            } else if (status.toLowerCase().includes('moderate')) {
+                statusText = '✓ Fresh & High Quality';
+            } else if (freshness >= 40) {
                 statusClass = 'status-moderate';
-                statusText = '⚠️ Moderate';
+                statusText = '⚠️ Moderate - Use Soon';
             } else {
                 statusClass = 'status-old';
-                statusText = '✗ Old / Spoiled';
+                statusText = '✗ Old - Consume Immediately';
             }
 
             statusBadge.innerHTML = `<div class="status-badge ${statusClass}">${statusText}</div>`;
@@ -515,7 +658,8 @@
             // Update detail values
             document.getElementById('remainingDays').textContent = `${remainingDays} days`;
             document.getElementById('freshnessValue').textContent = `${freshness}%`;
-            document.getElementById('statusValue').textContent = status;
+            document.getElementById('qualityValue').textContent = quality;
+            document.getElementById('recommendationText').textContent = recommendation;
 
             // Show result section
             document.getElementById('resultSection').style.display = 'block';
@@ -532,17 +676,19 @@
 
             // Hide other result content
             document.getElementById('freshnessFill').style.width = '0%';
+            document.getElementById('freshnessFill').textContent = '0%';
             document.getElementById('statusBadge').innerHTML = '';
             document.getElementById('remainingDays').textContent = '-';
             document.getElementById('freshnessValue').textContent = '-';
-            document.getElementById('statusValue').textContent = '-';
+            document.getElementById('qualityValue').textContent = '-';
+            document.getElementById('recommendationText').textContent = '-';
 
             errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
-        // Add example data for testing
+        // Load example data function
         function loadExample() {
-            document.getElementById('Fruit_type').value = 'tomato';
+            document.getElementById('vegetable_type').value = 'tomato';
             document.getElementById('ethanol').value = '0.5';
             document.getElementById('co2').value = '400';
             document.getElementById('temp').value = '22';
@@ -552,12 +698,13 @@
             document.getElementById('color_score').value = '8';
         }
 
-        // Optional: Add example button
+        // Add example button to the form
         const exampleBtn = document.createElement('button');
-        exampleBtn.textContent = '📝 Load Example';
-        exampleBtn.style.cssText = 'margin-top: 10px; padding: 8px 15px; background: #f0f0f0; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9rem;';
+        exampleBtn.textContent = '📝 Load Example Data';
+        exampleBtn.type = 'button';
+        exampleBtn.style.cssText = 'margin-top: 10px; padding: 10px; background: #f0f0f0; border: 2px solid #e0e0e0; border-radius: 10px; cursor: pointer; font-size: 0.9rem; width: 100%;';
         exampleBtn.onclick = loadExample;
-        document.querySelector('.form-section').appendChild(exampleBtn);
+        document.querySelector('.card-body').appendChild(exampleBtn);
     </script>
 </body>
 
