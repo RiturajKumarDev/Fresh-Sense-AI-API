@@ -545,166 +545,149 @@
             </div>
         </div>
     </div>
-
     <script>
-        const API_URL = window.location.origin;
-
-        document.getElementById('predictionForm').addEventListener('submit', async (e) => {
+        document.getElementById('predictionForm').addEventListener('submit', function (e) {
             e.preventDefault();
 
-            const predictBtn = document.getElementById('predictBtn');
-            const originalText = predictBtn.innerHTML;
-            predictBtn.innerHTML = '<div class="loading"></div> Analyzing...';
-            predictBtn.disabled = true;
+            const vegetable = document.getElementById('vegetable_type').value;
+            const ethanol = parseFloat(document.getElementById('ethanol').value);
+            const co2 = parseFloat(document.getElementById('co2').value);
+            const temp = parseFloat(document.getElementById('temp').value);
+            const humidity = parseFloat(document.getElementById('humidity').value);
+            const days = parseFloat(document.getElementById('days_passed').value);
+            const color = parseFloat(document.getElementById('color_score').value);
 
-            // Hide previous results
-            document.getElementById('resultSection').style.display = 'none';
-            document.getElementById('errorMessage').style.display = 'none';
-
-            // Collect form data
-            const formData = {
-                vegetable_type: document.getElementById('vegetable_type').value,
-                ethanol: parseFloat(document.getElementById('ethanol').value),
-                co2: parseFloat(document.getElementById('co2').value),
-                temp: parseFloat(document.getElementById('temp').value),
-                humidity: parseFloat(document.getElementById('humidity').value),
-                days_passed: parseFloat(document.getElementById('days_passed').value),
-                weight: parseFloat(document.getElementById('weight').value),
-                color_score: parseFloat(document.getElementById('color_score').value)
-            };
-
-            // Validate
-            if (!formData.vegetable_type) {
-                showError('Please select a vegetable or fruit type');
-                predictBtn.innerHTML = originalText;
-                predictBtn.disabled = false;
+            if (!vegetable) {
+                alert("Please select a fruit or vegetable");
                 return;
             }
 
-            // Validate ranges
-            if (formData.color_score < 1 || formData.color_score > 10) {
-                showError('Color score must be between 1 and 10');
-                predictBtn.innerHTML = originalText;
-                predictBtn.disabled = false;
-                return;
+            // Freshness Calculation
+            let freshness = 100;
+
+            freshness -= ethanol * 5;
+            freshness -= (co2 / 1000) * 5;
+            freshness -= days * 3;
+
+            if (temp > 25) freshness -= (temp - 25) * 1.5;
+            if (humidity < 50) freshness -= (50 - humidity) * 0.3;
+
+            freshness += color * 2;
+
+            freshness = Math.max(0, Math.min(100, Math.round(freshness)));
+
+            let status = "";
+            let quality = "";
+            let recommendation = "";
+            let remainingDays = 0;
+
+            if (freshness >= 70) {
+                status = "Fresh & High Quality";
+                quality = "A";
+                recommendation = "Safe to store and consume.";
+                remainingDays = Math.round(freshness / 10);
+            } else if (freshness >= 40) {
+                status = "Moderate - Use Soon";
+                quality = "B";
+                recommendation = "Consume within a few days.";
+                remainingDays = Math.round(freshness / 15);
+            } else {
+                status = "Old - Consume Immediately";
+                quality = "C";
+                recommendation = "Use immediately or discard if spoiled.";
+                remainingDays = 0;
             }
 
-            try {
-                const response = await fetch(`${API_URL}/predict`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error || 'Prediction failed');
-                }
-
-                // Display results
-                displayResults(data);
-
-            } catch (error) {
-                console.error('Error:', error);
-                showError(error.message || 'An error occurred while predicting. Please try again.');
-            } finally {
-                predictBtn.innerHTML = originalText;
-                predictBtn.disabled = false;
-            }
+            displayResults({
+                freshness_percentage: freshness,
+                remaining_days: remainingDays,
+                status: status,
+                quality: quality,
+                recommendation: recommendation
+            });
         });
 
         function displayResults(data) {
-            const freshness = data.freshness_percentage;
-            const remainingDays = data.remaining_days;
-            const status = data.status;
-            const quality = data.quality;
-            const recommendation = data.recommendation;
-
-            // Update freshness bar
             const freshnessFill = document.getElementById('freshnessFill');
-            freshnessFill.style.width = `${freshness}%`;
-            freshnessFill.textContent = `${freshness}%`;
 
-            // Set color based on freshness
-            if (freshness >= 70) {
-                freshnessFill.style.background = 'linear-gradient(90deg, #4caf50, #8bc34a)';
-            } else if (freshness >= 40) {
-                freshnessFill.style.background = 'linear-gradient(90deg, #ff9800, #ffc107)';
+            freshnessFill.style.width = data.freshness_percentage + "%";
+            freshnessFill.textContent = data.freshness_percentage + "%";
+
+            if (data.freshness_percentage >= 70) {
+                freshnessFill.style.background =
+                    "linear-gradient(90deg,#4caf50,#8bc34a)";
+            } else if (data.freshness_percentage >= 40) {
+                freshnessFill.style.background =
+                    "linear-gradient(90deg,#ff9800,#ffc107)";
             } else {
-                freshnessFill.style.background = 'linear-gradient(90deg, #f44336, #e91e63)';
+                freshnessFill.style.background =
+                    "linear-gradient(90deg,#f44336,#e91e63)";
             }
 
-            // Update status badge
-            const statusBadge = document.getElementById('statusBadge');
-            let statusClass = '';
-            let statusText = '';
+            const badge = document.getElementById('statusBadge');
 
-            if (freshness >= 70) {
-                statusClass = 'status-fresh';
-                statusText = '✓ Fresh & High Quality';
-            } else if (freshness >= 40) {
-                statusClass = 'status-moderate';
-                statusText = '⚠️ Moderate - Use Soon';
-            } else {
-                statusClass = 'status-old';
-                statusText = '✗ Old - Consume Immediately';
+            let badgeClass = "status-old";
+
+            if (data.freshness_percentage >= 70) {
+                badgeClass = "status-fresh";
+            } else if (data.freshness_percentage >= 40) {
+                badgeClass = "status-moderate";
             }
 
-            statusBadge.innerHTML = `<div class="status-badge ${statusClass}">${statusText}</div>`;
+            badge.innerHTML =
+                `<div class="status-badge ${badgeClass}">
+            ${data.status}
+        </div>`;
 
-            // Update detail values
-            document.getElementById('remainingDays').textContent = `${remainingDays} days`;
-            document.getElementById('freshnessValue').textContent = `${freshness}%`;
-            document.getElementById('qualityValue').textContent = quality;
-            document.getElementById('recommendationText').textContent = recommendation;
+            document.getElementById('remainingDays').textContent =
+                data.remaining_days + " days";
 
-            // Show result section
-            document.getElementById('resultSection').style.display = 'block';
+            document.getElementById('freshnessValue').textContent =
+                data.freshness_percentage + "%";
 
-            // Smooth scroll to results
-            document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            document.getElementById('qualityValue').textContent =
+                data.quality;
+
+            document.getElementById('recommendationText').textContent =
+                data.recommendation;
+
+            document.getElementById('errorMessage').style.display = "none";
+            document.getElementById('resultSection').style.display = "block";
+
+            document.getElementById('resultSection')
+                .scrollIntoView({ behavior: "smooth" });
         }
 
-        function showError(message) {
-            const errorDiv = document.getElementById('errorMessage');
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-            document.getElementById('resultSection').style.display = 'block';
-
-            // Hide other result content
-            document.getElementById('freshnessFill').style.width = '0%';
-            document.getElementById('freshnessFill').textContent = '0%';
-            document.getElementById('statusBadge').innerHTML = '';
-            document.getElementById('remainingDays').textContent = '-';
-            document.getElementById('freshnessValue').textContent = '-';
-            document.getElementById('qualityValue').textContent = '-';
-            document.getElementById('recommendationText').textContent = '-';
-
-            errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-
-        // Load example data function
         function loadExample() {
             document.getElementById('vegetable_type').value = 'tomato';
             document.getElementById('ethanol').value = '0.5';
             document.getElementById('co2').value = '400';
             document.getElementById('temp').value = '22';
-            document.getElementById('humidity').value = '65';
+            document.getElementById('humidity').value = '70';
             document.getElementById('days_passed').value = '2';
             document.getElementById('weight').value = '150';
             document.getElementById('color_score').value = '8';
         }
 
-        // Add example button to the form
         const exampleBtn = document.createElement('button');
-        exampleBtn.textContent = '📝 Load Example Data';
         exampleBtn.type = 'button';
-        exampleBtn.style.cssText = 'margin-top: 10px; padding: 10px; background: #f0f0f0; border: 2px solid #e0e0e0; border-radius: 10px; cursor: pointer; font-size: 0.9rem; width: 100%;';
+        exampleBtn.innerHTML = '📝 Load Example Data';
+        exampleBtn.style.cssText = `
+                        margin-top:10px;
+                        width:100%;
+                        padding:12px;
+                        border:none;
+                        border-radius:10px;
+                        background:#f0f0f0;
+                        cursor:pointer;
+                        font-weight:bold;
+                        `;
+
         exampleBtn.onclick = loadExample;
-        document.querySelector('.card-body').appendChild(exampleBtn);
+
+        document
+            .getElementById('predictionForm')
+            .appendChild(exampleBtn);
     </script>
 </body>
 
