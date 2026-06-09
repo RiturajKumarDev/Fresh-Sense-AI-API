@@ -1,0 +1,10 @@
+*.pyc
+__pycache__
+.git
+.gitignore
+README.md
+.vscode
+.venv
+venv
+env
+*.pkl  # Don't exclude if models are in root, adjust as needed

@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vegetable Freshness Predictor</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .form-section {
+            padding: 30px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .input-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 0.9rem;
+        }
+
+        .input-group input,
+        .input-group select {
+            padding: 10px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .input-group input[type="number"] {
+            -moz-appearance: textfield;
+        }
+
+        .input-group input[type="number"]::-webkit-inner-spin-button,
+        .input-group input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .predict-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            transition: transform 0.2s ease;
+        }
+
+        .predict-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .predict-btn:active {
+            transform: translateY(0);
+        }
+
+        .predict-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .result-section {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 30px;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .result-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .freshness-indicator {
+            margin: 20px 0;
+        }
+
+        .freshness-bar {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 30px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .freshness-fill {
+            background: linear-gradient(90deg, #4caf50, #8bc34a);
+            height: 100%;
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+            margin: 10px 0;
+        }
+
+        .status-fresh {
+            background: #4caf50;
+            color: white;
+        }
+
+        .status-moderate {
+            background: #ff9800;
+            color: white;
+        }
+
+        .status-old {
+            background: #f44336;
+            color: white;
+        }
+
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .detail-item {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+        }
+
+        .detail-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .error-message {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 4px solid #c62828;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, .3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .info-section {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .info-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .info-item {
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .info-item strong {
+            color: #764ba2;
+        }
+
+        @media (max-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .form-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🥗 Vegetable Freshness Predictor</h1>
+            <p>Enter vegetable parameters to predict freshness and remaining shelf life</p>
+        </div>
+
+        <div class="main-card">
+            <div class="form-section">
+                <form id="predictionForm">
+                    <div class="form-grid">
+                        <div class="input-group">
+                            <label for="vegetable_type">Vegetable Type *</label>
+                            <select id="vegetable_type" required>
+                                <option value="">Select vegetable</option>
+                                <option value="tomato">Tomato</option>
+                                <option value="potato">Potato</option>
+                                <option value="onion">Onion</option>
+                                <option value="carrot">Carrot</option>
+                                <option value="cucumber">Cucumber</option>
+                                <option value="lettuce">Lettuce</option>
+                                <option value="spinach">Spinach</option>
+                                <option value="broccoli">Broccoli</option>
+                                <option value="cauliflower">Cauliflower</option>
+                                <option value="bell_pepper">Bell Pepper</option>
+                            </select>
+                        </div>
+
+                        <div class="input-group">
+                            <label for="ethanol">Ethanol Level (ppm) *</label>
+                            <input type="number" id="ethanol" step="0.01" required placeholder="e.g., 0.5">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="co2">CO2 Level (ppm) *</label>
+                            <input type="number" id="co2" step="0.01" required placeholder="e.g., 400">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="temp">Temperature (°C) *</label>
+                            <input type="number" id="temp" step="0.1" required placeholder="e.g., 22">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="humidity">Humidity (%) *</label>
+                            <input type="number" id="humidity" step="0.1" required placeholder="e.g., 65">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="days_passed">Days Passed Since Harvest *</label>
+                            <input type="number" id="days_passed" step="0.1" required placeholder="e.g., 2">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="weight">Weight (grams) *</label>
+                            <input type="number" id="weight" step="0.01" required placeholder="e.g., 150">
+                        </div>
+
+                        <div class="input-group">
+                            <label for="color_score">Color Score (1-10) *</label>
+                            <input type="number" id="color_score" step="0.1" min="1" max="10" required
+                                placeholder="e.g., 8">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="predict-btn" id="predictBtn">🔮 Predict Freshness</button>
+                </form>
+            </div>
+
+            <div class="result-section" id="resultSection" style="display: none;">
+                <div class="result-card">
+                    <h2>Prediction Results</h2>
+
+                    <div class="freshness-indicator">
+                        <div class="freshness-bar">
+                            <div class="freshness-fill" id="freshnessFill">0%</div>
+                        </div>
+                    </div>
+
+                    <div id="statusBadge"></div>
+
+                    <div class="result-details">
+                        <div class="detail-item">
+                            <div class="detail-label">Remaining Days</div>
+                            <div class="detail-value" id="remainingDays">-</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Freshness Level</div>
+                            <div class="detail-value" id="freshnessValue">-</div>
+                        </div>
+                        <div class="detail-item">
+                            <div class="detail-label">Status</div>
+                            <div class="detail-value" id="statusValue">-</div>
+                        </div>
+                    </div>
+
+                    <div id="errorMessage" class="error-message" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="info-section">
+            <h3>📊 Understanding the Parameters</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <strong>Ethanol</strong><br>
+                    Higher levels indicate spoilage
+                </div>
+                <div class="info-item">
+                    <strong>CO2</strong><br>
+                </div>
+                <div class="info-item">
+                    <strong>Temperature</strong><br>
+                    Optimal: 4-8°C for most vegetables
+                </div>
+                <div class="info-item">
+                    <strong>Humidity</strong><br>
+                    Optimal: 85-95%
+                </div>
+                <div class="info-item">
+                    <strong>Color Score</strong><br>
+                    10 = Perfect, 1 = Poor
+                </div>
+                <div class="info-item">
+                    <strong>Freshness Scale</strong><br>
+                    0-100% (100% = Freshly harvested)
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin; // Use current domain for API calls
+
+        document.getElementById('predictionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const predictBtn = document.getElementById('predictBtn');
+            const originalText = predictBtn.innerHTML;
+            predictBtn.innerHTML = '<div class="loading"></div> Predicting...';
+            predictBtn.disabled = true;
+
+            // Hide previous results
+            document.getElementById('resultSection').style.display = 'none';
+            document.getElementById('errorMessage').style.display = 'none';
+
+            // Collect form data
+            const formData = {
+                vegetable_type: document.getElementById('vegetable_type').value,
+                ethanol: parseFloat(document.getElementById('ethanol').value),
+                co2: parseFloat(document.getElementById('co2').value),
+                temp: parseFloat(document.getElementById('temp').value),
+                humidity: parseFloat(document.getElementById('humidity').value),
+                days_passed: parseFloat(document.getElementById('days_passed').value),
+                weight: parseFloat(document.getElementById('weight').value),
+                color_score: parseFloat(document.getElementById('color_score').value)
+            };
+
+            // Validate
+            if (!formData.vegetable_type) {
+                showError('Please select a vegetable type');
+                predictBtn.innerHTML = originalText;
+                predictBtn.disabled = false;
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_URL}/predict`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Prediction failed');
+                }
+
+                // Display results
+                displayResults(data);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError(error.message || 'An error occurred while predicting. Please try again.');
+            } finally {
+                predictBtn.innerHTML = originalText;
+                predictBtn.disabled = false;
+            }
+        });
+
+        function displayResults(data) {
+            const freshness = data.freshness;
+            const remainingDays = data.remaining_days;
+            const status = data.status;
+
+            // Update freshness bar
+            const freshnessFill = document.getElementById('freshnessFill');
+            freshnessFill.style.width = `${freshness}%`;
+            freshnessFill.textContent = `${freshness}%`;
+
+            // Set color based on freshness
+            if (freshness >= 70) {
+                freshnessFill.style.background = 'linear-gradient(90deg, #4caf50, #8bc34a)';
+            } else if (freshness >= 40) {
+                freshnessFill.style.background = 'linear-gradient(90deg, #ff9800, #ffc107)';
+            } else {
+                freshnessFill.style.background = 'linear-gradient(90deg, #f44336, #e91e63)';
+            }
+
+            // Update status badge
+            const statusBadge = document.getElementById('statusBadge');
+            let statusClass = '';
+            let statusText = '';
+
+            if (status.toLowerCase().includes('fresh')) {
+                statusClass = 'status-fresh';
+                statusText = '✓ Fresh';
+            } else if (status.toLowerCase().includes('moderate')) {
+                statusClass = 'status-moderate';
+                statusText = '⚠️ Moderate';
+            } else {
+                statusClass = 'status-old';
+                statusText = '✗ Old / Spoiled';
+            }
+
+            statusBadge.innerHTML = `<div class="status-badge ${statusClass}">${statusText}</div>`;
+
+            // Update detail values
+            document.getElementById('remainingDays').textContent = `${remainingDays} days`;
+            document.getElementById('freshnessValue').textContent = `${freshness}%`;
+            document.getElementById('statusValue').textContent = status;
+
+            // Show result section
+            document.getElementById('resultSection').style.display = 'block';
+
+            // Smooth scroll to results
+            document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('resultSection').style.display = 'block';
+
+            // Hide other result content
+            document.getElementById('freshnessFill').style.width = '0%';
+            document.getElementById('statusBadge').innerHTML = '';
+            document.getElementById('remainingDays').textContent = '-';
+            document.getElementById('freshnessValue').textContent = '-';
+            document.getElementById('statusValue').textContent = '-';
+
+            errorDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Add example data for testing
+        function loadExample() {
+            document.getElementById('vegetable_type').value = 'tomato';
+            document.getElementById('ethanol').value = '0.5';
+            document.getElementById('co2').value = '400';
+            document.getElementById('temp').value = '22';
+            document.getElementById('humidity').value = '65';
+            document.getElementById('days_passed').value = '2';
+            document.getElementById('weight').value = '150';
+            document.getElementById('color_score').value = '8';
+        }
+
+        // Optional: Add example button
+        const exampleBtn = document.createElement('button');
+        exampleBtn.textContent = '📝 Load Example';
+        exampleBtn.style.cssText = 'margin-top: 10px; padding: 8px 15px; background: #f0f0f0; border: none; border-radius: 5px; cursor: pointer; font-size: 0.9rem;';
+        exampleBtn.onclick = loadExample;
+        document.querySelector('.form-section').appendChild(exampleBtn);
+    </script>
+</body>
+
+</html>
