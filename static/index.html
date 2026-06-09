@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vegetable Freshness Predictor</title>
+    <title>Fruit Freshness Predictor</title>
     <style>
         * {
             margin: 0;
@@ -280,8 +280,8 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🥗 Vegetable Freshness Predictor</h1>
-            <p>Enter vegetable parameters to predict freshness and remaining shelf life</p>
+            <h1>🥗 Fruit Freshness Predictor</h1>
+            <p>Enter Fruit parameters to predict freshness and remaining shelf life</p>
         </div>
 
         <div class="main-card">
@@ -289,19 +289,24 @@
                 <form id="predictionForm">
                     <div class="form-grid">
                         <div class="input-group">
-                            <label for="vegetable_type">Vegetable Type *</label>
-                            <select id="vegetable_type" required>
-                                <option value="">Select vegetable</option>
-                                <option value="tomato">Tomato</option>
-                                <option value="potato">Potato</option>
-                                <option value="onion">Onion</option>
-                                <option value="carrot">Carrot</option>
-                                <option value="cucumber">Cucumber</option>
-                                <option value="lettuce">Lettuce</option>
-                                <option value="spinach">Spinach</option>
-                                <option value="broccoli">Broccoli</option>
-                                <option value="cauliflower">Cauliflower</option>
-                                <option value="bell_pepper">Bell Pepper</option>
+                            <label for="Fruit_type">Fruit Type *</label>
+                            <select id="Fruit_type" required>
+                                <option value="">Select Fruit</option>
+                                <option value="apple">Apple</option>
+                                <option value="banana">Banana</option>
+                                <option value="mango">Mango</option>
+                                <option value="orange">Orange</option>
+                                <option value="grapes">Grapes</option>
+                                <option value="pineapple">Pineapple</option>
+                                <option value="papaya">Papaya</option>
+                                <option value="watermelon">Watermelon</option>
+                                <option value="pomegranate">Pomegranate</option>
+                                <option value="guava">Guava</option>
+                                <option value="kiwi">Kiwi</option>
+                                <option value="strawberry">Strawberry</option>
+                                <option value="pear">Pear</option>
+                                <option value="peach">Peach</option>
+                                <option value="cherry">Cherry</option>
                             </select>
                         </div>
 
@@ -390,7 +395,7 @@
                 </div>
                 <div class="info-item">
                     <strong>Temperature</strong><br>
-                    Optimal: 4-8°C for most vegetables
+                    Optimal: 4-8°C for most Fruits
                 </div>
                 <div class="info-item">
                     <strong>Humidity</strong><br>
@@ -425,7 +430,7 @@
 
             // Collect form data
             const formData = {
-                vegetable_type: document.getElementById('vegetable_type').value,
+                Fruit_type: document.getElementById('Fruit_type').value,
                 ethanol: parseFloat(document.getElementById('ethanol').value),
                 co2: parseFloat(document.getElementById('co2').value),
                 temp: parseFloat(document.getElementById('temp').value),
@@ -436,8 +441,8 @@
             };
 
             // Validate
-            if (!formData.vegetable_type) {
-                showError('Please select a vegetable type');
+            if (!formData.Fruit_type) {
+                showError('Please select a Fruit type');
                 predictBtn.innerHTML = originalText;
                 predictBtn.disabled = false;
                 return;
@@ -537,7 +542,7 @@
 
         // Add example data for testing
         function loadExample() {
-            document.getElementById('vegetable_type').value = 'tomato';
+            document.getElementById('Fruit_type').value = 'tomato';
             document.getElementById('ethanol').value = '0.5';
             document.getElementById('co2').value = '400';
             document.getElementById('temp').value = '22';
